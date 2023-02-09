@@ -1,10 +1,14 @@
 import { ImageGalleryItem } from 'components/ImageGalleryItem';
-import { GalleryWrapper } from './ImageGallery.styled';
+import { GalleryList, GalleryItem } from './ImageGallery.styled';
 
-export const ImageGallery = () => {
+export const ImageGallery = ({ images, query }) => {
   return (
-    <GalleryWrapper>
-      <ImageGalleryItem />
-    </GalleryWrapper>
+    <GalleryList>
+      {images.map(image => (
+        <GalleryItem key={image.id}>
+          <ImageGalleryItem image={image} alt={query} />
+        </GalleryItem>
+      ))}
+    </GalleryList>
   );
 };
