@@ -1,14 +1,16 @@
 import { ImageGalleryItem } from 'components/ImageGalleryItem';
 import { GalleryList, GalleryItem } from './ImageGallery.styled';
 
-export const ImageGallery = ({ images, query }) => {
+export const ImageGallery = ({ images, query, toggle, showModal }) => {
   return (
-    <GalleryList>
-      {images.map(image => (
-        <GalleryItem key={image.id}>
-          <ImageGalleryItem image={image} alt={query} />
-        </GalleryItem>
-      ))}
-    </GalleryList>
+    <>
+      <GalleryList>
+        {images.map((image, index) => (
+          <GalleryItem key={image.id} onClick={() => toggle(index)}>
+            <ImageGalleryItem image={image} alt={query} showModal={showModal} />
+          </GalleryItem>
+        ))}
+      </GalleryList>
+    </>
   );
 };

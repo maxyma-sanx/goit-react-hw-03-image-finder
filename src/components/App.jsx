@@ -5,45 +5,63 @@ import { ImageGallery } from './ImageGallery';
 import { Wrapper } from './Wrapper';
 import { Searchbar } from './Searchbar';
 import { Button } from './Button';
+import { Loader } from './Loader';
 import { settings } from 'utils/notifySettings';
-
 import { getImages } from 'services/pixabayAPI';
+import { Modal } from './Modal';
 
 export class App extends Component {
   state = {
     page: 1,
+    totalPages: null,
     query: '',
     images: [],
     isLoading: false,
-  };
-
-  getData = async () => {
-    this.setState({ isLoading: true });
-
-    return await getImages(this.state.query, this.state.page);
+    showModal: false,
+    currentIdx: null,
   };
 
   async componentDidUpdate(_, prevState) {
     try {
       const { query, page } = this.state;
 
-      const { hits } = await this.getData();
-
-      if (prevState.query !== query) {
-        this.setState({ images: hits });
+      if (prevState.query !== this.state.query) {
+        this.setState({ isLoading: true });
+        const { hits, totalHits } = await getImages(query, page);
+        this.setState({
+          totalPages: Math.round(totalHits / 12),
+          images: hits,
+          isLoading: false,
+        });
       }
 
       if (prevState.page !== page && prevState.query === query) {
+        this.setState({ isLoading: true });
+        const { hits } = await getImages(query, page);
         this.setState({
           images: [...prevState.images, ...hits],
+          isLoading: false,
         });
       }
-    } catch (error) {
-      toast.error('Something is wrong, try to reload page', settings);
-    } finally {
-      this.setState({ isLoading: false });
+    } catch (e) {
+      toast.error(
+        `Something is wrong, try to reload page! Error: ${e.message}`,
+        settings
+      );
     }
   }
+
+  handleFormSubmit = query => {
+    this.setState({ page: 1, totalPages: null, query, images: [] });
+  };
+
+  toggleModal = id => {
+    this.setState({ showModal: !this.state.showModal, currentIdx: id });
+  };
+
+  closeModal = () => {
+    this.setState({ showModal: !this.state.showModal });
+  };
 
   loadMore = () => {
     this.setState(prevState => ({
@@ -51,21 +69,38 @@ export class App extends Component {
     }));
   };
 
-  handleFormSubmit = query => {
-    this.setState({ page: 1, query, images: [] });
-  };
-
   render() {
-    const { images, query } = this.state;
+    const { page, totalPages, images, query, showModal, currentIdx } =
+      this.state;
 
     return (
       <>
         <Searchbar onSubmit={this.handleFormSubmit} />
+
         <Wrapper>
-          {this.state.isLoading && <p>Идет загрузка...</p>}
-          <ImageGallery images={images} query={query} />
-          {images.length > 0 && <Button loadMore={this.loadMore} />}
+          <ImageGallery
+            images={images}
+            query={query}
+            toggle={this.toggleModal}
+            showModal={showModal}
+            currentIdx={currentIdx}
+          />
+
+          <Loader loading={this.state.isLoading} />
+
+          {images.length > 0 && totalPages > page && (
+            <Button loadMore={this.loadMore} />
+          )}
         </Wrapper>
+
+        {showModal && (
+          <Modal
+            image={images[currentIdx]}
+            alt={query}
+            onClose={this.closeModal}
+          />
+        )}
+
         <GlobalStyle />
         <ToastContainer />
       </>

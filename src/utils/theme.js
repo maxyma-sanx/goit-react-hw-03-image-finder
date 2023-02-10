@@ -3,6 +3,7 @@ export const theme = {
     white: '#fff',
     accent: '#3f51b5',
     accentHover: '#303f9f',
+    overlay: 'rgba(0, 0, 0, 0.8)',
   },
 
   shadows: {
