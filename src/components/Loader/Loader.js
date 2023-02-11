@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { SyncLoader } from 'react-spinners';
 
 export const Loader = ({ loading }) => {
@@ -13,4 +14,8 @@ export const Loader = ({ loading }) => {
       }}
     />
   );
+};
+
+Loader.propTypes = {
+  loading: PropTypes.bool.isRequired,
 };

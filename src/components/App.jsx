@@ -22,32 +22,25 @@ export class App extends Component {
   };
 
   async componentDidUpdate(_, prevState) {
-    try {
-      const { query, page } = this.state;
+    const { query, page, images } = this.state;
+    const { query: prevQuery, page: prevPage } = prevState;
 
-      if (prevState.query !== this.state.query) {
+    if (prevQuery !== query || prevPage !== page) {
+      try {
         this.setState({ isLoading: true });
         const { hits, totalHits } = await getImages(query, page);
         this.setState({
           totalPages: Math.round(totalHits / 12),
-          images: hits,
-          isLoading: false,
+          images: [...images, ...hits],
         });
+      } catch (e) {
+        toast.error(
+          `Something is wrong, try to reload page! Error: ${e.message}`,
+          settings
+        );
+      } finally {
+        this.setState({ isLoading: false });
       }
-
-      if (prevState.page !== page && prevState.query === query) {
-        this.setState({ isLoading: true });
-        const { hits } = await getImages(query, page);
-        this.setState({
-          images: [...prevState.images, ...hits],
-          isLoading: false,
-        });
-      }
-    } catch (e) {
-      toast.error(
-        `Something is wrong, try to reload page! Error: ${e.message}`,
-        settings
-      );
     }
   }
 
@@ -64,14 +57,21 @@ export class App extends Component {
   };
 
   loadMore = () => {
-    this.setState(prevState => ({
-      page: prevState.page + 1,
+    this.setState(({ page }) => ({
+      page: page + 1,
     }));
   };
 
   render() {
-    const { page, totalPages, images, query, showModal, currentIdx } =
-      this.state;
+    const {
+      page,
+      totalPages,
+      images,
+      query,
+      showModal,
+      currentIdx,
+      isLoading,
+    } = this.state;
 
     return (
       <>
@@ -86,9 +86,9 @@ export class App extends Component {
             currentIdx={currentIdx}
           />
 
-          <Loader loading={this.state.isLoading} />
+          <Loader loading={isLoading} />
 
-          {images.length > 0 && totalPages > page && (
+          {images.length > 0 && totalPages >= page && (
             <Button loadMore={this.loadMore} />
           )}
         </Wrapper>

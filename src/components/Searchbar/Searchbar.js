@@ -1,6 +1,7 @@
 import { Component } from 'react';
 import { FaSearch } from 'react-icons/fa';
 import { toast } from 'react-toastify';
+import PropTypes from 'prop-types';
 import { settings } from 'utils/notifySettings';
 
 import {
@@ -11,6 +12,10 @@ import {
 } from './Searchbar.styled';
 
 export class Searchbar extends Component {
+  static propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+  };
+
   state = {
     query: '',
   };
@@ -20,17 +25,21 @@ export class Searchbar extends Component {
   };
 
   handleFormSubmit = e => {
+    const { query } = this.state;
+
     e.preventDefault();
 
-    if (!this.state.query.trim()) {
+    if (!query.trim()) {
       toast.error('Please enter a non empty query!', settings);
       return;
     }
 
-    this.props.onSubmit(this.state.query);
+    this.props.onSubmit(query);
   };
 
   render() {
+    const { query } = this.state;
+
     return (
       <SearchbarContainer>
         <SearchForm onSubmit={this.handleFormSubmit}>
@@ -42,7 +51,7 @@ export class Searchbar extends Component {
             name="query"
             placeholder="Search images and photos"
             autocomplete="off"
-            value={this.state.query}
+            value={query}
             onChange={this.handleChangeQuery}
             autoFocus
           />
