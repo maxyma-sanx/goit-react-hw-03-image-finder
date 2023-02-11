@@ -13,7 +13,7 @@ import { Modal } from './Modal';
 export class App extends Component {
   state = {
     page: 1,
-    totalPages: null,
+    sb: null,
     query: '',
     images: [],
     isLoading: false,
@@ -30,7 +30,7 @@ export class App extends Component {
         this.setState({ isLoading: true });
         const { hits, totalHits } = await getImages(query, page);
         this.setState({
-          sb: page< Math.ceil(totalHits / 12),
+          sb: page < Math.ceil(totalHits / 12),
           images: [...images, ...hits],
         });
       } catch (e) {
@@ -45,7 +45,7 @@ export class App extends Component {
   }
 
   handleFormSubmit = query => {
-    this.setState({ page: 1, totalPages: null, query, images: [] });
+    this.setState({ page: 1, sb: null, query, images: [] });
   };
 
   toggleModal = id => {
@@ -63,15 +63,7 @@ export class App extends Component {
   };
 
   render() {
-    const {
-      page,
-      totalPages,
-      images,
-      query,
-      showModal,
-      currentIdx,
-      isLoading,
-    } = this.state;
+    const { images, query, showModal, currentIdx, isLoading, sb } = this.state;
 
     return (
       <>
@@ -88,9 +80,7 @@ export class App extends Component {
 
           <Loader loading={isLoading} />
 
-          {sb && (
-            <Button loadMore={this.loadMore} />
-          )}
+          {sb && <Button loadMore={this.loadMore} />}
         </Wrapper>
 
         {showModal && (
