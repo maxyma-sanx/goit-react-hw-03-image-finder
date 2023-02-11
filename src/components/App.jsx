@@ -30,7 +30,7 @@ export class App extends Component {
         this.setState({ isLoading: true });
         const { hits, totalHits } = await getImages(query, page);
         this.setState({
-          totalPages: Math.round(totalHits / 12),
+          sb: page< Math.ceil(totalHits / 12),
           images: [...images, ...hits],
         });
       } catch (e) {
@@ -88,7 +88,7 @@ export class App extends Component {
 
           <Loader loading={isLoading} />
 
-          {images.length > 0 && totalPages >= page && (
+          {sb && (
             <Button loadMore={this.loadMore} />
           )}
         </Wrapper>
